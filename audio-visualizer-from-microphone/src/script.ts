@@ -3,6 +3,9 @@ interface Window {
 }
 
 type VisualizationMode = 'bars' | 'waves' | 'circles';
+interface VisualizationStates {
+  [key: string]: boolean;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById(
@@ -23,17 +26,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add new controls
   let isFullscreen = false;
-  let visualizationMode: VisualizationMode = 'bars';
+  let activeVisualizations: VisualizationStates = {
+    bars: true,
+    waves: false,
+    circles: false
+  };
   let isRunning = false;
 
   const toggleFullscreenBtn = document.getElementById("toggleFullscreen") as HTMLButtonElement;
-  const modeBtns = document.querySelectorAll('.visualization-mode') as NodeListOf<HTMLButtonElement>;
+  const visualizationToggles = document.querySelectorAll('.visualization-toggle') as NodeListOf<HTMLButtonElement>;
 
   function updateButtonStates() {
     startButton.textContent = isRunning ? "Stop Visualizer" : "Start Visualizer";
     startButton.classList.toggle('active', isRunning);
-    modeBtns.forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.mode === visualizationMode);
+    visualizationToggles.forEach(btn => {
+      const mode = btn.dataset.mode as VisualizationMode;
+      btn.classList.toggle('active', activeVisualizations[mode]);
     });
   }
 
@@ -55,44 +63,50 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.classList.toggle('fullscreen', isFullscreen);
   });
 
-  modeBtns.forEach(btn => {
+  // Remove old mode button listeners and add new toggle listeners
+  visualizationToggles.forEach(btn => {
     btn.addEventListener('click', () => {
-      visualizationMode = btn.dataset.mode as VisualizationMode;
+      const mode = btn.dataset.mode as VisualizationMode;
+      activeVisualizations[mode] = !activeVisualizations[mode];
       updateButtonStates();
     });
   });
 
-  // Check if microphone is already permitted
-  navigator.permissions.query({ name: 'microphone' as PermissionName })
-    .then((permissionStatus) => {
-      if (permissionStatus.state === 'granted') {
-        initAudio();
-      }
-
-      // Listen for future permission changes
-      permissionStatus.addEventListener('change', () => {
-        if (permissionStatus.state === 'granted') {
-          initAudio();
-        }
-      });
-    })
-    .catch(() => {
-      // Fallback if permissions API is not supported
-      console.log('Permissions API not supported, using button fallback');
-    });
+  // Auto-start if permission is granted
+  initAudio();
 
   startButton.addEventListener("click", () => {
     if (!isRunning) {
       initAudio();
-      isRunning = true;
     } else {
       stopVisualization();
-      isRunning = false;
     }
-    updateButtonStates();
   });
 
   function initAudio() {
+    if (isRunning) return;
+
+    navigator.permissions.query({ name: 'microphone' as PermissionName })
+      .then((permissionStatus) => {
+        if (permissionStatus.state === 'granted') {
+          startVisualization();
+        } else {
+          // Request permission through getUserMedia
+          navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(() => startVisualization())
+            .catch(err => {
+              console.error("Error accessing microphone:", err);
+              microphoneInfo.textContent = "Error: Could not access microphone";
+            });
+        }
+      })
+      .catch(() => {
+        // Fallback for browsers that don't support permissions API
+        startVisualization();
+      });
+  }
+
+  function startVisualization() {
     audioContext = new (window.AudioContext ||
       (window as any).webkitAudioContext)();
     analyser = audioContext.createAnalyser();
@@ -141,6 +155,9 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Error accessing microphone:", err);
         microphoneInfo.textContent = "Error: Could not access microphone";
       });
+
+    isRunning = true;
+    updateButtonStates();
   }
 
   function stopVisualization() {
@@ -149,6 +166,8 @@ document.addEventListener("DOMContentLoaded", () => {
       audioContext = undefined;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    isRunning = false;
+    updateButtonStates();
   }
 
   function visualize(dataArray: Uint8Array) {
@@ -156,43 +175,28 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillStyle = "#111";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    switch (visualizationMode) {
-      case 'bars':
-        drawBars(dataArray);
-        break;
-      case 'waves':
-        drawWaves(dataArray);
-        break;
-      case 'circles':
-        drawCircles(dataArray);
-        break;
-    }
+    // Draw each active visualization
+    if (activeVisualizations.bars) drawBars(dataArray);
+    if (activeVisualizations.waves) drawWaves(dataArray);
+    if (activeVisualizations.circles) drawCircles(dataArray);
 
-    const barWidth = (canvas.width / dataArray.length) * 2.5;
-    let x = 0;
+    // Calculate volumes for warning system
     let maxVolume = 0;
-
-    // Calculate average and max volume
     let totalVolume = 0;
+
     for (let i = 0; i < dataArray.length; i++) {
-      const barHeight = dataArray[i];
-      maxVolume = Math.max(maxVolume, barHeight);
-      totalVolume += barHeight;
-
-      const hue = (barHeight / 255) * 120;
-      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-      ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
-
-      x += barWidth + 1;
+      maxVolume = Math.max(maxVolume, dataArray[i]);
+      totalVolume += dataArray[i];
     }
 
     const avgVolume = totalVolume / dataArray.length;
+
     // Debug volume levels
     if (avgVolume > 0) {
       console.debug(`Volume - Avg: ${avgVolume.toFixed(2)}, Max: ${maxVolume}`);
     }
 
-    // Adjusted threshold for sound detection (increased from 10 to 25)
+    // Sound detection warning
     if (maxVolume < 25 && avgVolume < 5) {
       if (!soundTimeout) {
         soundTimeout = setTimeout(() => {

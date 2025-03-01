@@ -46,12 +46,12 @@ body {
   background: var(--primary-dark);
 }
 
-.button.visualization-mode {
+.button.visualization-toggle {
   background: transparent;
   border: 1px solid var(--primary);
 }
 
-.button.visualization-mode.active {
+.button.visualization-toggle.active {
   background: var(--primary);
 }
 
