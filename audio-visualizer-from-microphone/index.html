@@ -1,43 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Visualizer</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            text-align: center;
-        }
-        canvas {
-            width: 90%;
-            max-width: 800px;
-            height: 300px;
-            border: 1px solid #ddd;
-            background-color: #111;
-        }
-        #microphoneInfo {
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
-        #soundWarning {
-            color: red;
-            margin-top: 10px;
-            display: none;
-        }
-        #startButton {
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
-    <h1>Audio Visualizer</h1>
-    <canvas id="visualizer"></canvas>
-    <br/>
-    <button id="startButton">Start Visualizer</button>
-    <div id="microphoneInfo"></div>
-    <div id="soundWarning">No sound detected. Check microphone.</div>
+    <div class="container">
+        <div class="controls">
+            <button id="startButton" class="button">Start Visualizer</button>
+            <button id="toggleFullscreen" class="button">Toggle Fullscreen</button>
+            <button class="button visualization-mode active" data-mode="bars">Bars</button>
+            <button class="button visualization-mode" data-mode="waves">Waves</button>
+            <button class="button visualization-mode" data-mode="circles">Circles</button>
+        </div>
 
+        <canvas id="visualizer"></canvas>
+
+        <div class="info-panel">
+            <div id="microphoneInfo">No microphone selected</div>
+            <div id="soundWarning">No sound detected! Check your microphone.</div>
+        </div>
+    </div>
     <script src="dist/script.js"></script>
 </body>
 </html>

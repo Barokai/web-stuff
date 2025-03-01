@@ -1,7 +1,8 @@
-// Add type declarations for the Web Audio API
 interface Window {
   webkitAudioContext: typeof AudioContext;
 }
+
+type VisualizationMode = 'bars' | 'waves' | 'circles';
 
 document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById(
@@ -19,6 +20,47 @@ document.addEventListener("DOMContentLoaded", () => {
   let analyser: AnalyserNode | undefined;
   let microphoneLabel: string = "";
   let soundTimeout: number | undefined;
+
+  // Add new controls
+  let isFullscreen = false;
+  let visualizationMode: VisualizationMode = 'bars';
+  let isRunning = false;
+
+  const toggleFullscreenBtn = document.getElementById("toggleFullscreen") as HTMLButtonElement;
+  const modeBtns = document.querySelectorAll('.visualization-mode') as NodeListOf<HTMLButtonElement>;
+
+  function updateButtonStates() {
+    startButton.textContent = isRunning ? "Stop Visualizer" : "Start Visualizer";
+    startButton.classList.toggle('active', isRunning);
+    modeBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === visualizationMode);
+    });
+  }
+
+  toggleFullscreenBtn.addEventListener("click", () => {
+    if (!isFullscreen) {
+      if (canvas.requestFullscreen) {
+        canvas.requestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+    isFullscreen = !isFullscreen;
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    isFullscreen = !!document.fullscreenElement;
+    canvas.classList.toggle('fullscreen', isFullscreen);
+  });
+
+  modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      visualizationMode = btn.dataset.mode as VisualizationMode;
+      updateButtonStates();
+    });
+  });
 
   // Check if microphone is already permitted
   navigator.permissions.query({ name: 'microphone' as PermissionName })
@@ -40,9 +82,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   startButton.addEventListener("click", () => {
-    if (!audioContext) {
+    if (!isRunning) {
       initAudio();
+      isRunning = true;
+    } else {
+      stopVisualization();
+      isRunning = false;
     }
+    updateButtonStates();
   });
 
   function initAudio() {
@@ -96,11 +143,30 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
+  function stopVisualization() {
+    if (audioContext) {
+      audioContext.close();
+      audioContext = undefined;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
   function visualize(dataArray: Uint8Array) {
     analyser!.getByteFrequencyData(dataArray);
-
     ctx.fillStyle = "#111";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    switch (visualizationMode) {
+      case 'bars':
+        drawBars(dataArray);
+        break;
+      case 'waves':
+        drawWaves(dataArray);
+        break;
+      case 'circles':
+        drawCircles(dataArray);
+        break;
+    }
 
     const barWidth = (canvas.width / dataArray.length) * 2.5;
     let x = 0;
@@ -142,5 +208,58 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     requestAnimationFrame(() => visualize(dataArray));
+  }
+
+  function drawBars(dataArray: Uint8Array) {
+    const barWidth = (canvas.width / dataArray.length) * 2.5;
+    let x = 0;
+
+    for (let i = 0; i < dataArray.length; i++) {
+      const barHeight = dataArray[i];
+      const hue = (barHeight / 255) * 120;
+      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+      ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+
+      x += barWidth + 1;
+    }
+  }
+
+  function drawWaves(dataArray: Uint8Array) {
+    const sliceWidth = canvas.width / dataArray.length;
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = `hsl(200, 100%, 50%)`;
+
+    let x = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+      const v = dataArray[i] / 128.0;
+      const y = (v * canvas.height) / 2;
+
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+      x += sliceWidth;
+    }
+    ctx.lineTo(canvas.width, canvas.height / 2);
+    ctx.stroke();
+  }
+
+  function drawCircles(dataArray: Uint8Array) {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    for (let i = 0; i < dataArray.length; i++) {
+      const value = dataArray[i];
+      const radius = (value / 255) * Math.min(centerX, centerY);
+      const hue = (i / dataArray.length) * 360;
+
+      ctx.beginPath();
+      ctx.strokeStyle = `hsla(${hue}, 100%, 50%, 0.5)`;
+      ctx.lineWidth = 2;
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
   }
 });
