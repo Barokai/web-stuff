@@ -1,0 +1,11 @@
+{
+  "name": "audio-visualizer",
+  "version": "1.0.0",
+  "description": "Audio Visualizer using Web Audio API and TypeScript",
+  "scripts": {
+    "watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}

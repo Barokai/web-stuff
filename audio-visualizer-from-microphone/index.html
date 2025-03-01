@@ -3,17 +3,40 @@
 <head>
     <title>Audio Visualizer</title>
     <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+        }
         canvas {
-            width: 100%;
+            width: 90%;
+            max-width: 800px;
             height: 300px;
-            border: 1px solid black;
+            border: 1px solid #ddd;
+            background-color: #111;
+        }
+        #microphoneInfo {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        #soundWarning {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+        #startButton {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <h1>Audio Visualizer</h1>
-    <button id="startButton">Start Visualizer</button>
     <canvas id="visualizer"></canvas>
+    <br/>
+    <button id="startButton">Start Visualizer</button>
+    <div id="microphoneInfo"></div>
+    <div id="soundWarning">No sound detected. Check microphone.</div>
 
     <script src="dist/script.js"></script>
 </body>
