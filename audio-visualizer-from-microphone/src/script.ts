@@ -1,8 +1,10 @@
+import { FractalVisualizer } from './viz/fractal.js';
+
 interface Window {
   webkitAudioContext: typeof AudioContext;
 }
 
-type VisualizationMode = 'bars' | 'waves' | 'circles';
+type VisualizationMode = 'bars' | 'waves' | 'circles' | 'fractal';
 interface VisualizationStates {
   [key: string]: boolean;
 }
@@ -33,12 +35,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeVisualizations: VisualizationStates = {
     bars: true,
     waves: false,
-    circles: false
+    circles: false,
+    fractal: false
   };
   let isRunning = false;
 
   const toggleFullscreenBtn = document.getElementById("toggleFullscreen") as HTMLButtonElement;
   const visualizationToggles = document.querySelectorAll('.visualization-toggle') as NodeListOf<HTMLButtonElement>;
+
+  const fractalViz = new FractalVisualizer();
 
   function updateButtonStates() {
     startButton.textContent = isRunning ? "Stop Visualizer" : "Start Visualizer";
@@ -119,9 +124,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Add at the top with other variable declarations
+  let startTime = Date.now();
+
+  // Update initAudio to reset the start time
   function initAudio() {
     if (isRunning) return;
-
+    startTime = Date.now();
     navigator.permissions.query({ name: 'microphone' as PermissionName })
       .then((permissionStatus) => {
         if (permissionStatus.state === 'granted') {
@@ -188,16 +197,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
           console.log('Selected microphone:', microphoneLabel);
           microphoneInfo.textContent = `Microphone: ${microphoneLabel}`;
+
+          // Add a small delay before starting visualization to allow audio system to initialize
+          setTimeout(() => {
+            visualize(dataArray);
+            isRunning = true;
+            updateButtonStates();
+            microphoneSelector.classList.remove("visible");
+          }, 500);
         } catch (err) {
           console.error('Error getting device info:', err);
           microphoneLabel = audioTrack.label || 'Unknown Microphone';
           microphoneInfo.textContent = `Microphone: ${microphoneLabel}`;
         }
-
-        visualize(dataArray);
-        isRunning = true;
-        updateButtonStates();
-        microphoneSelector.classList.remove("visible");
       })
       .catch((err) => {
         console.error("Error accessing microphone:", err);
@@ -234,6 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw each active visualization
+    if (activeVisualizations.fractal) fractalViz.draw(ctx, dataArray);
     if (activeVisualizations.bars) drawBars(dataArray);
     if (activeVisualizations.waves) drawWaves(dataArray);
     if (activeVisualizations.circles) drawCircles(dataArray);
@@ -249,13 +262,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const avgVolume = totalVolume / dataArray.length;
 
-    // Debug volume levels
-    if (avgVolume > 0) {
-      console.debug(`Volume - Avg: ${avgVolume.toFixed(2)}, Max: ${maxVolume}`);
-    }
+    // Adjusted sound detection with initial grace period
+    const gracePeriod = 3000; // 3 seconds
+    const timeSinceStart = Date.now() - startTime;
 
-    // Sound detection warning
-    if (maxVolume < 25 && avgVolume < 5) {
+    if (timeSinceStart > gracePeriod && maxVolume < 25 && avgVolume < 5) {
       if (!soundTimeout) {
         soundTimeout = setTimeout(() => {
           showSoundWarning();
