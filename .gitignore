@@ -1,0 +1,22 @@
+# Compiled output
+dist/
+
+# Node modules
+node_modules/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE specific files
+.idea/
+#.vscode/
+*.swp
+*.swo
+
+# Source Maps
+*.map
+
+# Package lock file
+package-lock.json
+yarn.lock
