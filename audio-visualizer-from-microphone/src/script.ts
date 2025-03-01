@@ -10,6 +10,8 @@ interface VisualizationStates {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  let startTime = Date.now();
+
   const startButton = document.getElementById(
     "startButton"
   ) as HTMLButtonElement;
@@ -81,8 +83,53 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Auto-start if permission is granted
-  initAudio();
+  async function checkMicrophonePermission() {
+    try {
+      // First try to get devices - this will trigger permission prompt
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasMicrophone = devices.some(device => device.kind === 'audioinput');
+
+      if (!hasMicrophone) {
+        microphoneInfo.textContent = "No microphone found!";
+        return false;
+      }
+
+      // Then explicitly request microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop()); // Clean up test stream
+      return true;
+    } catch (err) {
+      console.error("Microphone permission error:", err);
+      microphoneInfo.textContent = "Please allow microphone access to use this app";
+      return false;
+    }
+  }
+
+  async function initAudio() {
+    if (isRunning) {
+      return;
+    }
+
+    startTime = Date.now();
+
+    // Check for HTTPS
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+      microphoneInfo.textContent = "This app requires HTTPS to access the microphone";
+      return;
+    }
+
+    const hasPermission = await checkMicrophonePermission();
+    if (hasPermission) {
+      startVisualization();
+    }
+  }
+
+  (async () => {
+    const hasPermission = await checkMicrophonePermission();
+    if (hasPermission) {
+      initAudio();
+    }
+  })();
 
   startButton.addEventListener("click", () => {
     if (!isRunning) {
@@ -106,7 +153,12 @@ document.addEventListener("DOMContentLoaded", () => {
   async function updateMicrophoneList() {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const microphones = devices.filter(device => device.kind === 'audioinput');
+      const microphones = devices.filter(device => {
+        if (device.kind === 'audioinput') {
+          return true;
+        }
+        return false;
+      });
 
       // Clear existing options except the first one
       while (microphoneList.options.length > 1) {
@@ -122,33 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error('Error listing microphones:', err);
     }
-  }
-
-  // Add at the top with other variable declarations
-  let startTime = Date.now();
-
-  // Update initAudio to reset the start time
-  function initAudio() {
-    if (isRunning) return;
-    startTime = Date.now();
-    navigator.permissions.query({ name: 'microphone' as PermissionName })
-      .then((permissionStatus) => {
-        if (permissionStatus.state === 'granted') {
-          startVisualization();
-        } else {
-          // Request permission through getUserMedia
-          navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(() => startVisualization())
-            .catch(err => {
-              console.error("Error accessing microphone:", err);
-              microphoneInfo.textContent = "Error: Could not access microphone";
-            });
-        }
-      })
-      .catch(() => {
-        // Fallback for browsers that don't support permissions API
-        startVisualization();
-      });
   }
 
   function startVisualization(deviceId?: string) {
