@@ -19,10 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const soundWarning = document.getElementById(
     "soundWarning"
   ) as HTMLDivElement;
+  const microphoneSelector = document.getElementById("microphoneSelector") as HTMLDivElement;
+  const microphoneList = document.getElementById("microphoneList") as HTMLSelectElement;
+  const changeMicButton = document.getElementById("changeMicButton") as HTMLButtonElement;
   let audioContext: AudioContext | undefined;
   let analyser: AnalyserNode | undefined;
   let microphoneLabel: string = "";
   let soundTimeout: number | undefined;
+  let currentStream: MediaStream | null = null;
 
   // Add new controls
   let isFullscreen = false;
@@ -83,6 +87,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  changeMicButton.addEventListener("click", () => {
+    updateMicrophoneList();
+    microphoneSelector.classList.toggle("visible");
+  });
+
+  microphoneList.addEventListener("change", () => {
+    if (microphoneList.value) {
+      startVisualization(microphoneList.value);
+    }
+  });
+
+  async function updateMicrophoneList() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const microphones = devices.filter(device => device.kind === 'audioinput');
+
+      // Clear existing options except the first one
+      while (microphoneList.options.length > 1) {
+        microphoneList.options.remove(1);
+      }
+
+      microphones.forEach(mic => {
+        const option = document.createElement('option');
+        option.value = mic.deviceId;
+        option.text = mic.label || `Microphone ${microphoneList.options.length}`;
+        microphoneList.appendChild(option);
+      });
+    } catch (err) {
+      console.error('Error listing microphones:', err);
+    }
+  }
+
   function initAudio() {
     if (isRunning) return;
 
@@ -106,7 +142,11 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  function startVisualization() {
+  function startVisualization(deviceId?: string) {
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+    }
+
     audioContext = new (window.AudioContext ||
       (window as any).webkitAudioContext)();
     analyser = audioContext.createAnalyser();
@@ -114,9 +154,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
+    const constraints = {
+      audio: deviceId ? { deviceId: { exact: deviceId } } : true
+    };
+
     navigator.mediaDevices
-      .getUserMedia({ audio: true })
+      .getUserMedia(constraints)
       .then(async (stream) => {
+        currentStream = stream;
         const source = audioContext!.createMediaStreamSource(stream);
         source.connect(analyser!);
 
@@ -150,17 +195,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         visualize(dataArray);
+        isRunning = true;
+        updateButtonStates();
+        microphoneSelector.classList.remove("visible");
       })
       .catch((err) => {
         console.error("Error accessing microphone:", err);
         microphoneInfo.textContent = "Error: Could not access microphone";
       });
-
-    isRunning = true;
-    updateButtonStates();
   }
 
   function stopVisualization() {
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+      currentStream = null;
+    }
     if (audioContext) {
       audioContext.close();
       audioContext = undefined;
@@ -168,6 +217,15 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     isRunning = false;
     updateButtonStates();
+  }
+
+  function showSoundWarning() {
+    soundWarning.innerHTML = `
+      No sound detected! <button class="button" onclick="document.getElementById('changeMicButton').click()">
+        Change Microphone?
+      </button>
+    `;
+    soundWarning.style.display = "block";
   }
 
   function visualize(dataArray: Uint8Array) {
@@ -200,7 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (maxVolume < 25 && avgVolume < 5) {
       if (!soundTimeout) {
         soundTimeout = setTimeout(() => {
-          soundWarning.style.display = "block";
+          showSoundWarning();
         }, 2000);
       }
     } else {

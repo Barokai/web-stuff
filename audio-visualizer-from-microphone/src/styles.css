@@ -88,3 +88,29 @@ body {
   background: rgba(207, 102, 121, 0.1);
   margin-top: 12px;
 }
+
+.mic-selector {
+    display: none;
+    margin-bottom: 20px;
+}
+
+.mic-selector.visible {
+    display: block;
+}
+
+.mic-select {
+    background: var(--surface);
+    color: var(--on-surface);
+    border: 1px solid var(--primary);
+    padding: 8px;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 300px;
+    font-size: 14px;
+}
+
+.mic-select option {
+  padding: 8px;
+  color: var(--on-surface);
+  background: var(--surface);
+}
