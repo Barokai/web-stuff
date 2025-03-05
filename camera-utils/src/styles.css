@@ -129,3 +129,44 @@ canvas {
   opacity: 0.8;
   font-size: 0.9rem;
 }
+
+.camera-controls {
+  margin-bottom: 1rem;
+}
+
+.camera-select {
+  background: var(--surface);
+  color: var(--on-surface);
+  border: 1px solid var(--primary);
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 300px;
+  font-size: 14px;
+  margin-bottom: 1rem;
+}
+
+/* Style dropdown options */
+.camera-select option {
+  background-color: var(--surface);
+  color: var(--on-surface);
+  padding: 8px;
+}
+
+/* Ensure dropdown arrow is visible */
+.camera-select::-ms-expand {
+  background-color: transparent;
+  color: var(--on-surface);
+}
+
+/* For Webkit browsers */
+.camera-select::-webkit-select-arrow {
+  color: var(--on-surface);
+}
+
+/* For Firefox */
+.camera-select {
+  -moz-appearance: none;
+  text-indent: 0.01px;
+  text-overflow: '';
+}
