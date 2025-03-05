@@ -4,106 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Experiments Collection</title>
-    <style>
-        :root {
-            --primary: #6200ee;
-            --surface: #121212;
-            --on-surface: #ffffff;
-            --card: #1e1e1e;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: var(--surface);
-            color: var(--on-surface);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        header {
-            margin-bottom: 4rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, #6200ee, #03dac6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-
-        .projects {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .project-card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .project-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .project-title {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .project-description {
-            margin-bottom: 1.5rem;
-            opacity: 0.9;
-        }
-
-        .project-link {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            text-decoration: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-
-        .project-link:hover {
-            background: #7722ff;
-        }
-
-        .tech-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .tech-tag {
-            background: rgba(98, 0, 238, 0.2);
-            color: #b794f6;
-            padding: 0.3rem 0.8rem;
-            border-radius: 1rem;
-            font-size: 0.85rem;
-        }
-    </style>
+    <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
     <div class="container">
@@ -127,8 +28,46 @@
                 <a href="./audio-visualizer-from-microphone/" class="project-link">Try it →</a>
             </div>
 
+            <div class="project-card">
+                <h2 class="project-title">Network Tools</h2>
+                <div class="tech-tags">
+                    <span class="tech-tag">TypeScript</span>
+                    <span class="tech-tag">IP Networking</span>
+                    <span class="tech-tag">CIDR</span>
+                </div>
+                <p class="project-description">
+                    Calculate IP ranges from CIDR notation, check if IP addresses are within ranges,
+                    and explore network addressing tools.
+                </p>
+                <a href="./network-tools/" class="project-link">Try it →</a>
+            </div>
+
             <!-- Additional project cards will be added here as they are created -->
         </main>
+
+        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <p class="subtitle" style="font-size: 0.9rem;">
+                These experiments were developed with assistance from GitHub Copilot (powered by OpenAI's GPT-4)
+                and Claude 3.5 Sonnet. While efforts have been made to ensure quality and reliability,
+                please be aware that AI-assisted code may contain unexpected behaviors.
+            </p>
+
+            <details class="readme-section" style="margin-top: 2rem; padding: 1rem; background: var(--card); border-radius: 8px;">
+                <summary style="cursor: pointer; font-size: 1.2rem; margin-bottom: 1rem;">Project Documentation</summary>
+                <div id="readme-content" class="markdown-body" style="color: var(--on-surface);">
+                    Loading documentation...
+                </div>
+            </details>
+        </footer>
     </div>
+    <script type="module">
+        import { loadMarkdown } from './shared/markdown-loader.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const readmeContent = document.getElementById('readme-content');
+            const html = await loadMarkdown('./README.md');
+            readmeContent.innerHTML = html;
+        });
+    </script>
 </body>
 </html>

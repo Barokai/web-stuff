@@ -30,7 +30,30 @@
             <div id="microphoneInfo">No microphone selected</div>
             <div id="soundWarning">No sound detected! Check your microphone.</div>
         </div>
+
+        <div class="info-panel disclaimer" style="margin-top: 2rem;">
+            <p style="opacity: 0.8;">
+                This visualizer was developed with assistance from GitHub Copilot (powered by OpenAI's GPT-4)
+                and Claude 3.5 Sonnet. Performance and behavior may vary across different browsers and systems.
+            </p>
+        </div>
+
+        <details class="readme-section" style="margin-top: 2rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+            <summary style="cursor: pointer; font-size: 1.2rem; margin-bottom: 1rem;">Tool Documentation</summary>
+            <div id="readme-content" class="markdown-body" style="color: var(--on-surface);">
+                Loading documentation...
+            </div>
+        </details>
     </div>
     <script type="module" src="./dist/script.js"></script>
+    <script type="module">
+        import { loadMarkdown } from '../shared/markdown-loader.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const readmeContent = document.getElementById('readme-content');
+            const html = await loadMarkdown('./README.md');
+            readmeContent.innerHTML = html;
+        });
+    </script>
 </body>
 </html>

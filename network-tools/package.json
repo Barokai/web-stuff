@@ -1,0 +1,11 @@
+{
+  "name": "network-tools",
+  "version": "1.0.0",
+  "description": "Network tools including CIDR calculator and IP range utilities",
+  "scripts": {
+    "watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}

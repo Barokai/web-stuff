@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Tools - CIDR Calculator</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>CIDR Calculator</h1>
+
+    <div class="input-group">
+      <label for="cidrInput">CIDR Notation:</label>
+      <input type="text"
+             id="cidrInput"
+             placeholder="e.g., 192.168.1.0/24"
+             class="text-input"
+             pattern="^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$"
+             title="Enter a valid CIDR notation (e.g., 192.168.1.0/24)">
+      <button id="calculateBtn" class="button">Calculate Range</button>
+    </div>
+
+    <div class="result-panel" id="resultPanel">
+      <h2>Network Information</h2>
+      <div id="networkInfo" class="info-grid">
+        <!-- Results will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <div class="check-panel">
+      <h2>IP Check</h2>
+      <div class="input-group">
+        <label for="ipCheckInput">Check if IP is in range:</label>
+        <input type="text"
+               id="ipCheckInput"
+               placeholder="e.g., 192.168.1.100"
+               class="text-input"
+               pattern="^(\d{1,3}\.){3}\d{1,3}$"
+               title="Enter a valid IP address (e.g., 192.168.1.100)">
+        <button id="checkBtn" class="button">Check IP</button>
+      </div>
+      <div id="checkResult" class="check-result">
+        <!-- Check results will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <div class="info-panel">
+      <h3>Examples</h3>
+      <ul>
+        <li>Class C Network: 192.168.1.0/24</li>
+        <li>Class B Network: 172.16.0.0/16</li>
+        <li>Class A Network: 10.0.0.0/8</li>
+      </ul>
+    </div>
+    <div class="info-panel disclaimer" style="margin-top: 2rem;">
+      <p style="opacity: 0.8;">
+        This tool was developed with assistance from GitHub Copilot (powered by OpenAI's GPT-4)
+        and Claude 3.5 Sonnet. While calculations have been tested, please verify critical network
+        configurations independently.
+      </p>
+    </div>
+
+    <details class="readme-section" style="margin-top: 2rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+      <summary style="cursor: pointer; font-size: 1.2rem; margin-bottom: 1rem;">Tool Documentation</summary>
+      <div id="readme-content" class="markdown-body" style="color: var(--on-surface);">
+        Loading documentation...
+      </div>
+    </details>
+  </div>
+  <script type="module" src="./dist/script.js"></script>
+  <script type="module">
+    import { loadMarkdown } from '../shared/markdown-loader.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const readmeContent = document.getElementById('readme-content');
+        const html = await loadMarkdown('./README.md');
+        readmeContent.innerHTML = html;
+    });
+  </script>
+</body>
+</html>
