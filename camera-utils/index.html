@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Utils - Image Filters</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Camera Filters</h1>
+
+    <div class="camera-container">
+      <video id="camera" autoplay playsinline></video>
+      <canvas id="preview"></canvas>
+      <button id="stopCameraBtn" class="button stop-camera" title="Stop Camera">⏹</button>
+    </div>
+
+    <div class="controls">
+      <button id="captureBtn" class="button">Take Photo</button>
+      <button id="downloadBtn" class="button" disabled>Download Photo</button>
+      <div class="filter-controls">
+        <button class="button filter-toggle" data-filter="none">Normal</button>
+        <button class="button filter-toggle" data-filter="invert">Invert</button>
+        <button class="button filter-toggle" data-filter="grayscale">Grayscale</button>
+        <button class="button filter-toggle" data-filter="ascii">ASCII Art</button>
+      </div>
+    </div>
+
+    <div class="info-panel">
+      <div id="cameraInfo">No camera selected</div>
+      <div id="cameraWarning" class="warning"></div>
+    </div>
+
+    <div class="info-panel disclaimer">
+      <p>
+        This tool was developed with assistance from GitHub Copilot (powered by OpenAI's GPT-4)
+        and Claude 3.5 Sonnet. Performance and behavior may vary across different browsers and systems.
+      </p>
+    </div>
+
+    <details class="readme-section">
+      <summary>Tool Documentation</summary>
+      <div id="readme-content" class="markdown-body">
+        Loading documentation...
+      </div>
+    </details>
+  </div>
+  <script type="module" src="./dist/script.js"></script>
+  <script type="module">
+    import { loadMarkdown } from '../shared/markdown-loader.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const readmeContent = document.getElementById('readme-content');
+      const html = await loadMarkdown('./README.md');
+      readmeContent.innerHTML = html;
+    });
+  </script>
+</body>
+</html>

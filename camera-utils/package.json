@@ -1,0 +1,11 @@
+{
+  "name": "camera-utils",
+  "version": "1.0.0",
+  "description": "Camera utilities and image filters using TypeScript and Web APIs",
+  "scripts": {
+    "watch": "bun build ./src/script.ts --outdir ./dist --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}

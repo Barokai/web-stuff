@@ -1,0 +1,17 @@
+{
+  "name": "web-stuff",
+  "version": "1.0.0",
+  "description": "Collection of web experiments and tools",
+  "scripts": {
+    "install-all": "bun install && bun run install:audio && bun run install:network && bun run install:camera",
+    "install:audio": "cd audio-visualizer-from-microphone && bun install",
+    "install:network": "cd network-tools && bun install",
+    "install:camera": "cd camera-utils && bun install",
+    "dev": "bun dev-server.js",
+    "start": "bun run install-all && bun run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.8.2"
+  }
+}
