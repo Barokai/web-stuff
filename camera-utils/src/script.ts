@@ -52,6 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
       captureBtn.disabled = false;
       stopCameraBtn.textContent = '⏹';
 
+      // Ensure video plays after setting source
+      try {
+        await video.play();
+      } catch (err) {
+        console.error('Error playing video:', err);
+      }
+
       // Update camera info
       const tracks = stream.getVideoTracks();
       if (tracks.length > 0) {
@@ -200,13 +207,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  stopCameraBtn.addEventListener('click', () => {
+  stopCameraBtn.addEventListener('click', async () => {
     if (stream) {
       stopCamera();
     } else {
-      canvas.style.display = 'none'; // Hide previous photo
-      video.style.display = 'block'; // Show video preview
-      initCamera(cameraSelect.value);
+      // Hide the canvas and captured photo
+      canvas.style.display = 'none';
+      // Clear any previous stream
+      video.srcObject = null;
+      // Show and start the video preview
+      video.style.display = 'block';
+      await initCamera(cameraSelect.value);
+      captureBtn.disabled = false;
     }
   });
 
