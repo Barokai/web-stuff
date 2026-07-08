@@ -6,6 +6,6 @@
     "watch": "bun build ./src/script.ts --outdir ./dist --watch"
   },
   "devDependencies": {
-    "typescript": "^5.8.2"
+    "typescript": "^7.0.0"
   }
 }
