@@ -1,4 +1,6 @@
-import { FractalVisualizer } from './viz/fractal.js';
+import readme from '../README.md?raw';
+import { renderDocs } from '../../shared/docs';
+import { FractalVisualizer } from './viz/fractal';
 
 interface Window {
   webkitAudioContext: typeof AudioContext;
@@ -29,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let audioContext: AudioContext | undefined;
   let analyser: AnalyserNode | undefined;
   let microphoneLabel: string = "";
-  let soundTimeout: number | undefined;
+  let soundTimeout: ReturnType<typeof setTimeout> | undefined;
   let currentStream: MediaStream | null = null;
 
   // Add new controls
@@ -265,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
     soundWarning.style.display = "block";
   }
 
-  function visualize(dataArray: Uint8Array) {
+  function visualize(dataArray: Uint8Array<ArrayBuffer>) {
     analyser!.getByteFrequencyData(dataArray);
     ctx.fillStyle = "#111";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -361,3 +363,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+renderDocs(readme);

@@ -1,4 +1,4 @@
-import { AudioVisualization } from './types';
+import type { AudioVisualization } from './types';
 
 export class FractalVisualizer implements AudioVisualization {
     private zoom = 1;

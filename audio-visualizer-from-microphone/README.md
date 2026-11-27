@@ -69,4 +69,4 @@ bun run watch
 
 ## Disclaimer
 
-This tool was developed with assistance from GitHub Copilot (powered by OpenAI's GPT-4) and Claude 3.5 Sonnet. While the implementation has been tested, performance and behavior may vary across different browsers, audio devices, and systems. Please test thoroughly in your environment.
+This tool was developed with help from AI coding assistants (GitHub Copilot and Claude). While the implementation has been tested, performance and behavior may vary across different browsers, audio devices, and systems. Please test thoroughly in your environment.
