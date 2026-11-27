@@ -54,4 +54,4 @@ Requires a modern browser supporting:
 
 ## Disclaimer
 
-This tool was developed with assistance from GitHub Copilot (powered by OpenAI's GPT-4) and Claude 3.5 Sonnet. While the calculations have been tested, please verify critical network configurations independently. The authors make no guarantees about the accuracy or reliability of the results.
+This tool was developed with help from AI coding assistants (GitHub Copilot and Claude). While the calculations have been tested, please verify critical network configurations independently. The authors make no guarantees about the accuracy or reliability of the results.

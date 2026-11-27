@@ -1,165 +1,64 @@
 # Web Experiments Collection
 
-A collection of interactive web experiments and visualizations using modern web technologies.
+A collection of small browser tools and experiments, built as one [Vite](https://vite.dev) multi-page app and deployed to GitHub Pages.
 
 ## Projects
 
-### Audio Visualizer
+| Tool | What it does |
+|---|---|
+| [Audio Visualizer](./audio-visualizer-from-microphone/) | Real-time visualization of microphone input (bars, waves, circles, audio-reactive fractal), with microphone selection and fullscreen |
+| [Network Tools](./network-tools/) | CIDR calculator (network/broadcast address, usable host range, mask) and an "is this IP in the range?" check |
+| [Camera Utils](./camera-utils/) | Camera preview and capture with filters (invert, grayscale, sepia, ASCII art, pixelate, edge detection) and image download |
 
-An interactive audio visualizer that captures microphone input and displays real-time visualizations.
+Each tool has its own `README.md`, which is also shown in the tool's "Documentation" panel.
 
-**Features:**
+## Getting started
 
-- Multiple visualization modes (bars, waves, circles, and fractal)
-- Real-time audio reactive animations
-- Microphone selection and management
-- Fullscreen support
-- Dynamic color schemes based on audio input
-
-**Technologies:**
-
-- TypeScript
-- Web Audio API
-- Canvas API
-- ES Modules
-
-[Try Audio Visualizer →](./audio-visualizer-from-microphone/)
-
-### Network Tools
-
-A CIDR calculator and IP range utility tool.
-
-[Try Network Tools →](./network-tools/)
-
-## Important Notes
-
-- These experiments require HTTPS when hosted (except for localhost)
-- Microphone access must be granted for the audio visualizer
-- For GitHub Pages deployment, make sure to allow microphone access in your browser settings
-
-## Prerequisites
-
-### Install Bun
-
-Windows (PowerShell):
-```powershell
-powershell -c "irm bun.sh/install.ps1 | iex"
-```
-
-Other platforms and more information: [Bun Installation Guide](https://bun.sh/docs/installation)
-
-## Setup & Running
-
-### Quick Start
+Requires [Bun](https://bun.sh/docs/installation).
 
 ```bash
-bun run start
+bun install
+bun run dev
 ```
 
-This will:
-1. Install all required dependencies
-2. Start TypeScript compilation in watch mode for all projects
-3. Launch a development server
-4. Open your default browser
+`bun run dev` starts the Vite dev server with hot reload and opens the landing page.
 
-### Available Commands
+| Command | What it does |
+|---|---|
+| `bun run dev` | Dev server with hot reload |
+| `bun run build` | Typecheck (`tsc`) and build all pages into `dist/` |
+| `bun run preview` | Serve the built `dist/` locally |
+| `bun run test` | Run the unit tests (Vitest) |
+| `bun run typecheck` | Typecheck only |
 
-```bash
-# Install dependencies for all projects
-bun run install-all
+The microphone and camera need a secure context: `localhost` works, a hosted copy needs HTTPS (GitHub Pages provides it).
 
-# Watch TypeScript files and serve
-bun run watch-all
+## Layout
 
-# Start development server only
-bun run serve
-
-# Install dependencies for specific projects
-bun run install:audio
-bun run install:network
-bun run install:camera
-
-# Watch specific projects
-bun run watch:audio
-bun run watch:network
-bun run watch:camera
+```text
+index.html, src/                  landing page
+audio-visualizer-from-microphone/ index.html, README.md, src/
+network-tools/                    index.html, README.md, src/  (tests next to the code: *.test.ts)
+camera-utils/                     index.html, README.md, src/
+shared/docs.ts                    renders a tool's README (marked + DOMPurify)
+vite.config.ts                    lists every page as a build input
 ```
 
-### Development Server Features
-- Auto-opens in default browser
-- Built-in TypeScript support
-- Significantly faster than npm
-- Hot reload enabled
+### Adding a tool
 
-### Local Development
+1. Create `<tool>/index.html`, `<tool>/README.md` and `<tool>/src/script.ts`, and reference the script with `<script type="module" src="./src/script.ts">`.
+2. Render the docs from the script: `import readme from '../README.md?raw'` and `renderDocs(readme)` from `shared/docs`.
+3. Add the page to `build.rollupOptions.input` in `vite.config.ts`.
+4. Add a card to the landing page (`index.html`) and a row to the table above.
 
-1. Navigate to the project directory:
+## Deployment
 
-```bash
-cd /c:/dev-stuff
-```
+`.github/workflows/static.yml` runs on every push and pull request: install, test, typecheck and build with Bun. On `main`, the `dist/` folder is deployed to GitHub Pages. The build uses a relative base (`./`), so it works under the repository's Pages path.
 
-2. Start a local server:
+## Browser support
 
-```bash
-npx http-server
-# Server will start at http://127.0.0.1:8080
-```
-
-3. Access the projects:
-
-- Main page: http://127.0.0.1:8080
-- Audio Visualizer: http://127.0.0.1:8080/audio-visualizer-from-microphone/
-
-### For TypeScript Projects (like Audio Visualizer)
-
-1. Navigate to the project directory:
-
-```bash
-cd audio-visualizer-from-microphone
-```
-
-2. Install dependencies and start TypeScript compilation:
-
-```bash
-npm install
-npm run watch
-```
-
-3. Keep the TypeScript compiler running in a separate terminal while developing
-
-### Notes
-
-- No global installations required
-- Works with any modern web server
-- TypeScript compilation is automatic in watch mode
-- Hot reload is supported when using `http-server`
-
-## GitHub Actions
-
-This project uses GitHub Actions for automated deployment to GitHub Pages:
-
-- **Trigger**: Pushes to the main branch
-- **Process**:
-  1. Sets up Node.js environment
-  2. Detects and compiles all TypeScript projects
-  3. Builds distribution files
-  4. Deploys to GitHub Pages
-- **Configuration**: See `.github/workflows/static.yml`
-
-## Browser Support
-
-- ES Modules
-- Web Audio API
-- Canvas API
-- Async/Await
+Current Chromium, Firefox and Safari. The tools use ES modules, the Web Audio API, `getUserMedia` and Canvas.
 
 ## Disclaimer
 
-This project was developed with assistance from GitHub Copilot (powered by OpenAI's GPT-4) and Claude 3.5 Sonnet. While efforts have been made to ensure accuracy and reliability, the generated code may contain unexpected behaviors or errors. Please review and test thoroughly before using in production environments.
-
-## References
-
-- [Web Audio API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
-- [IP Addressing Guide](https://www.rfc-editor.org/rfc/rfc1918)
+Built with help from AI coding assistants (GitHub Copilot and Claude). Please verify results independently before relying on them, especially the network calculations.

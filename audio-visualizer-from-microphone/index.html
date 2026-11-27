@@ -34,8 +34,8 @@
 
         <div class="info-panel disclaimer" style="margin-top: 2rem;">
             <p style="opacity: 0.8;">
-                This visualizer was developed with assistance from GitHub Copilot (powered by OpenAI's GPT-4)
-                and Claude 3.5 Sonnet. Performance and behavior may vary across different browsers and systems.
+                This visualizer was developed with help from AI coding assistants
+                (GitHub Copilot and Claude). Performance and behavior may vary across different browsers and systems.
             </p>
         </div>
 
@@ -46,15 +46,6 @@
             </div>
         </details>
     </div>
-    <script type="module" src="./dist/script.js"></script>
-    <script type="module">
-        import { loadMarkdown } from '../shared/markdown-loader.js';
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const readmeContent = document.getElementById('readme-content');
-            const html = await loadMarkdown('./README.md');
-            readmeContent.innerHTML = html;
-        });
-    </script>
+    <script type="module" src="./src/script.ts"></script>
 </body>
 </html>

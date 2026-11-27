@@ -1,4 +1,6 @@
-import { NetworkCalculator } from './lib/network.js';
+import readme from '../README.md?raw';
+import { renderDocs } from '../../shared/docs';
+import { NetworkCalculator, type NetworkInfo } from './lib/network';
 
 document.addEventListener('DOMContentLoaded', () => {
   const cidrInput = document.getElementById('cidrInput') as HTMLInputElement;
@@ -53,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  function displayNetworkInfo(info: any) {
+  function displayNetworkInfo(info: NetworkInfo) {
     networkInfo.innerHTML = `
       <div class="info-item">
         <div class="info-label">Network Address</div>
@@ -72,8 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="info-value">${info.lastHost}</div>
       </div>
       <div class="info-item">
-        <div class="info-label">Total Hosts</div>
-        <div class="info-value">${info.totalHosts}</div>
+        <div class="info-label">Usable Hosts</div>
+        <div class="info-value">${info.usableHosts.toLocaleString()}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Total Addresses</div>
+        <div class="info-value">${info.totalAddresses.toLocaleString()}</div>
       </div>
       <div class="info-item">
         <div class="info-label">Subnet Mask</div>
@@ -82,3 +88,5 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 });
+
+renderDocs(readme);

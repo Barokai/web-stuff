@@ -1,4 +1,6 @@
-import { ImageProcessor } from './lib/image-processor.js';
+import readme from '../README.md?raw';
+import { renderDocs } from '../../shared/docs';
+import { ImageProcessor } from './lib/image-processor';
 
 document.addEventListener('DOMContentLoaded', () => {
   const video = document.getElementById('camera') as HTMLVideoElement;
@@ -229,3 +231,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize camera
   initCamera();
 });
+
+renderDocs(readme);
